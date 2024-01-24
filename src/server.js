@@ -11,34 +11,38 @@
                               //DELETE: Quando vamos excluir uma informação
 
                              //cabeçalho(requisição,resposta) chamados de metadados [ sethead('','')]
- import http from 'http'  
- 
-         const users=[]
+                             import http from 'http';
+                            import { json } from './middlewares/json.js';
 
-
- const server =http.createServer((req,res)=>{
-      const {method,url}=req
-      
-      
-      if(method==='GET' && url==='/users'){
-         return res
-         .setHeader('content-type','application/JSON')
-         .end(JSON.stringify(users ))
-      }
-
-      if(method==='POST' && url==='/users'){
-
-         users.push({
-            id: 1,
-            name:'zecão da massa',
-            email:'zeca@exemple.com',
-         })
-
-         return res.writeHead(201).end()
-      }
-
-    return res.writeHead(404).end()
-
- })
-
- server.listen(3333)
+                             const users = [];
+                             
+                             const server = http.createServer(async (req, res) => {
+                               const { method, url } = req;
+                             
+                               await json(req,res)
+                             
+                               res.setHeader('Access-Control-Allow-Origin', '*');
+                             
+                               if (method === 'GET' && url === '/users') {
+                                 return res
+                                   .setHeader('content-type', 'application/json')
+                                   .end(JSON.stringify(users));
+                               }
+                             
+                               if (method === 'POST' && url === '/users' && req.body) {
+                                 const { name,email } = req.body;
+                             
+                                 users.push({
+                                    id:1,
+                                   name,
+                                   email,
+                                 });
+                             
+                                 return res.writeHead(201).end();
+                               }
+                             
+                               return res.writeHead(404).end();
+                             });
+                             
+                             server.listen(3333);
+                             
