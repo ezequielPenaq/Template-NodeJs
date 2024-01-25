@@ -12,9 +12,12 @@
 
                              //cabeçalho(requisição,resposta) chamados de metadados [ sethead('','')]
                              import http from 'http';
+                              import{randomUUID} from 'node:crypto'
                             import { json } from './middlewares/json.js';
+                            import { Database } from './Database.js';
 
-                             const users = [];
+                            const database = new Database()
+
                              
                              const server = http.createServer(async (req, res) => {
                                const { method, url } = req;
@@ -24,6 +27,8 @@
                                res.setHeader('Access-Control-Allow-Origin', '*');
                              
                                if (method === 'GET' && url === '/users') {
+                                
+                                  const users=database.select('users')
                                  return res
                                    .setHeader('content-type', 'application/json')
                                    .end(JSON.stringify(users));
@@ -31,13 +36,15 @@
                              
                                if (method === 'POST' && url === '/users' && req.body) {
                                  const { name,email } = req.body;
-                             
-                                 users.push({
-                                    id:1,
-                                   name,
-                                   email,
-                                 });
-                             
+
+                                 const user={      
+                                  id:randomUUID(),
+                                  name,
+                                  email,
+                                  }
+                              
+                                  database.insert('users', user)
+
                                  return res.writeHead(201).end();
                                }
                              

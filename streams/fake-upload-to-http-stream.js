@@ -11,9 +11,9 @@ class OneToHoundredStream extends Readable{
         setTimeout(() => {
             
     
-        if (i>5){
+        if (i>100){
             this.push(null)
-        }
+        }                                                              
         else{
             const buf = buffer.from(string(i))
             this.push(buff)

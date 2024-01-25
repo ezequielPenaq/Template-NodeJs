@@ -6,14 +6,14 @@
 .pipe(process.stdout)*/
 
 import{Readable,Writable,Transform } from 'node: stream'
-
+    
 class OneToHoundredStream extends Readable{
     
     index=1
     
     _read(){
         let i = this.index++
-
+                                                    
         if (i>100){
             this.push(null)
         }
