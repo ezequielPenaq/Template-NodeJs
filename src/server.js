@@ -12,11 +12,12 @@
 
                              //cabeçalho(requisição,resposta) chamados de metadados [ sethead('','')]
                              import http from 'http';
-                              import{randomUUID} from 'node:crypto'
+                              
                             import { json } from './middlewares/json.js';
-                            import { Database } from './Database.js';
+                            import { routes } from './routes.js';
+                            import { exctractQueryParams } from './utilis/exctract-query-params.js';
+                     
 
-                            const database = new Database()
 
                              
                              const server = http.createServer(async (req, res) => {
@@ -24,28 +25,20 @@
                              
                                await json(req,res)
                              
-                               res.setHeader('Access-Control-Allow-Origin', '*');
-                             
-                               if (method === 'GET' && url === '/users') {
+                               const route = routes.find(route=>{
+                                return route.method===method && route.path.test(url)
+                               })
+                               
+                               if(route){
+                                const routeParams= req.url.match(route.path)
                                 
-                                  const users=database.select('users')
-                                 return res
-                                   .setHeader('content-type', 'application/json')
-                                   .end(JSON.stringify(users));
-                               }
-                             
-                               if (method === 'POST' && url === '/users' && req.body) {
-                                 const { name,email } = req.body;
+                                const {query, ...params} = routeParams.groups
+                                
+                                req.params= params
+                                req.query=query?exctractQueryParams(query) : {}
+                                //console.log(exctractQueryParams(routeParams.groups.query))
 
-                                 const user={      
-                                  id:randomUUID(),
-                                  name,
-                                  email,
-                                  }
-                              
-                                  database.insert('users', user)
-
-                                 return res.writeHead(201).end();
+                                return route.handler(req, res)
                                }
                              
                                return res.writeHead(404).end();
